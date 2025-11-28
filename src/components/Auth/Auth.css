@@ -1,0 +1,220 @@
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #2E8B57 0%, #3CB371 100%);
+  padding: 20px;
+}
+
+.auth-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  padding: 40px;
+  width: 100%;
+  max-width: 450px;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.auth-header h1 {
+  color: #2E8B57;
+  margin: 0 0 10px 0;
+  font-size: 2rem;
+}
+
+.auth-header p {
+  color: #666;
+  margin: 0;
+}
+
+.auth-form {
+  margin-bottom: 25px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #2E8B57;
+}
+
+.form-group input.error {
+  border-color: #e74c3c;
+}
+
+.error-text {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 5px;
+  display: block;
+}
+
+.submit-error {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.auth-button {
+  width: 100%;
+  padding: 14px;
+  background: #2E8B57;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.auth-button:hover {
+  background: #26734d;
+}
+
+.logout-button {
+  background: #e74c3c;
+}
+
+.logout-button:hover {
+  background: #c0392b;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.auth-footer a {
+  color: #2E8B57;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+.benefits-section,
+.app-features {
+  border-top: 1px solid #e1e5e9;
+  padding-top: 25px;
+}
+
+.benefits-section h3,
+.app-features h3 {
+  color: #2E8B57;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.benefits-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.benefits-section li {
+  padding: 8px 0;
+  color: #555;
+}
+
+.benefits-section li:before {
+  content: "✓ ";
+  color: #2E8B57;
+  font-weight: bold;
+}
+
+.features-grid {
+  display: grid;
+  gap: 15px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  color: #555;
+}
+
+.feature-icon {
+  font-size: 20px;
+  margin-right: 12px;
+}
+
+.user-info {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+}
+
+.user-info p {
+  margin: 8px 0;
+  color: #555;
+}
+
+.dashboard-features {
+  margin-bottom: 25px;
+}
+
+.feature-card {
+  background: white;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  border-color: #2E8B57;
+}
+
+.feature-card h4 {
+  margin: 0 0 10px 0;
+  color: #2E8B57;
+}
+
+.feature-card p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 25px 20px;
+  }
+  
+  .auth-header h1 {
+    font-size: 1.5rem;
+  }
+}
