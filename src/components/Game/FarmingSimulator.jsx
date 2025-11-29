@@ -194,7 +194,7 @@ const FarmingSimulator = () => {
 
     return (
         <div style={styles.container}>
-            <h1>Advanced Pixel Farming Simulator</h1>
+            <h1>Pixel Farming Simulator</h1>
 
             <div style={styles.uiPanel}>
                 <div id="statusDisplay">Day: {day} | Money: ${money}</div>
