@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './Home.css';
@@ -37,14 +37,22 @@ const createPin = (type) => {
   });
 };
 
-function Home() {
+function Home({ user }) {
   const position = [2.9278, 101.6419];  // Coordinates for the Cyberjaya for the map
+  const navigate = useNavigate();
 
   // For dropdown
   const [selectedCategories, setSelectedCategories] = useState([]);
   const categories = ['Recycling Bins', 'Recycling Centres', 'Donation Bins', 'Donation Centres'];
+  
   const handleCheckboxChange = (category) => {
     setSelectedCategories(prev => prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]);
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    // Refresh the page to update the user state
+    window.location.reload();
   }
 
   return (
@@ -53,11 +61,33 @@ function Home() {
       <nav className="navbar">
         <div className="nav-logo">BinFinder</div>
         <div className="menu-right">
-          <Link to="/login">
-            <button className="nav-login-btn">Log In</button>
-          </Link>
+          {user ? (
+            // Show user info and logout when logged in
+            <div className="user-menu">
+              <span className="welcome-text">Welcome, {user.fullName}!</span>
+              <span className="user-points">{user.points} pts</span>
+              <button className="nav-login-btn" onClick={handleLogout}>
+                Log Out
+              </button>
+            </div>
+          ) : (
+            // Show login button when not logged in
+            <Link to="/login">
+              <button className="nav-login-btn">Log In</button>
+            </Link>
+          )}
         </div>
       </nav>
+
+      {/* Welcome Banner for logged-in users */}
+      {user && (
+        <div className="welcome-banner">
+          <div className="welcome-content">
+            <h2>Welcome back, {user.fullName}! 👋</h2>
+            <p>You have <strong>{user.points} points</strong> • Continue your recycling journey in Cyberjaya</p>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <div className="main-content">
@@ -85,6 +115,14 @@ function Home() {
                   <p style={{ margin: 0, color: 'gray' }}>{location.type}</p>
                   <hr style={{ margin: '5px 0' }}/>
                   <small>{location.address}</small>
+                  {user && (
+                    <>
+                      <hr style={{ margin: '5px 0' }}/>
+                      <button className="report-btn">
+                        Report Issue
+                      </button>
+                    </>
+                  )}
                 </div>
               </Popup>
             </Marker>
@@ -92,26 +130,72 @@ function Home() {
         </MapContainer>
 
         <div className="sidebar">
-          <p>Filtering & Report goes here</p>
-            
-            {/* Category Filtering */}
-            <div className="dropdown-list">
-              <p><b>Category</b></p>
+          {user ? (
+            // Logged-in user sidebar
+            <div className="user-sidebar">
+              <div className="user-stats">
+                <h3>Your Stats</h3>
+                <div className="stat-item">
+                  <span className="stat-label">Points Earned:</span>
+                  <span className="stat-value">{user.points}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Pins Created:</span>
+                  <span className="stat-value">{user.pinCount || 0}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Reports Submitted:</span>
+                  <span className="stat-value">{user.reportedPinCount || 0}</span>
+                </div>
+              </div>
 
-              {categories.map(category => (
-                <label key={category} className="dropdown-item">
-                  <input
-                    type="checkbox"
-                    value={category}
-                    checked={selectedCategories.includes(category)}
-                    onChange={() => handleCheckboxChange(category)}
-                  />
-                  {category}
-                </label>
-              ))}
-
-              <button className="filter-btn">Filter</button>
+              <div className="quick-actions">
+                <h3>Quick Actions</h3>
+                <button className="action-btn">
+                  📸 Add New Pin
+                </button>
+                <button className="action-btn">
+                  📊 View Your Pins
+                </button>
+              </div>
             </div>
+          ) : (
+            // Guest user sidebar
+            <div className="guest-sidebar">
+              <div className="signup-promo">
+                <h3>Join BinFinder Today!</h3>
+                <p>Create an account to:</p>
+                <ul>
+                  <li>🏆 Earn points for recycling</li>
+                  <li>📱 Track your impact</li>
+                  <li>📍 Save favorite locations</li>
+                  <li>👥 Join the community</li>
+                </ul>
+                <Link to="/signup">
+                  <button className="signup-btn">Sign Up Free</button>
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Category Filtering (for all users) */}
+          <div className="dropdown-list">
+            <p><b>Category</b></p>
+
+            {categories.map(category => (
+              <label key={category} className="dropdown-item">
+                <input
+                  type="checkbox"
+                  value={category}
+                  checked={selectedCategories.includes(category)}
+                  onChange={() => handleCheckboxChange(category)}
+                />
+                {category}
+              </label>
+            ))}
+
+            <button className="filter-btn">Filter</button>
+          </div>
         </div>
       </div>
     </div>
