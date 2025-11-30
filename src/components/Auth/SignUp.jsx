@@ -4,14 +4,18 @@ import './Auth.css';
 
 const SignUp = ({ setUser }) => {
   const [formData, setFormData] = useState({
-    fullName: '',
+    firstnam: '',
+    lastname: '',
+    username: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    userType: 'resident'
+    confirmPassword: ''
   });
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  const BASE_URL = 'https://rv-n5oa.onrender.com';
 
   const handleChange = (e) => {
     setFormData({
@@ -23,8 +27,16 @@ const SignUp = ({ setUser }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
+    if (!formData.firstnam.trim()) {
+      newErrors.firstnam = 'First name is required';
+    }
+
+    if (!formData.lastname.trim()) {
+      newErrors.lastname = 'Last name is required';
+    }
+
+    if (!formData.username.trim()) {
+      newErrors.username = 'Username is required';
     }
 
     if (!formData.email.trim()) {
@@ -51,21 +63,43 @@ const SignUp = ({ setUser }) => {
     e.preventDefault();
     
     if (validateForm()) {
+      setIsLoading(true);
       try {
-        // Simulate API call
-        const userData = {
-          id: Date.now(),
-          fullName: formData.fullName,
+        const signupData = {
+          firstnam: formData.firstnam,
+          lastname: formData.lastname,
+          username: formData.username,
           email: formData.email,
-          userType: formData.userType,
-          points: 0
+          password: formData.password
         };
+
+        const response = await fetch(`${BASE_URL}/vr/user/signup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(signupData)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Signup failed');
+        }
+
+        // Signup successful, redirect to login
+        navigate('/login', { 
+          state: { message: 'Account created successfully! Please login.' }
+        });
         
-        setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
-        navigate('/dashboard');
       } catch (error) {
-        setErrors({ submit: 'Sign up failed. Please try again.' });
+        console.error('Signup error:', error);
+        setErrors({ 
+          submit: error.message || 'Sign up failed. Please try again.' 
+        });
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -88,17 +122,45 @@ const SignUp = ({ setUser }) => {
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="fullName">Full Name</label>
+            <label htmlFor="firstnam">First Name</label>
             <input
               type="text"
-              id="fullName"
-              name="fullName"
-              value={formData.fullName}
+              id="firstnam"
+              name="firstnam"
+              value={formData.firstnam}
               onChange={handleChange}
-              className={errors.fullName ? 'error' : ''}
-              placeholder="Enter your full name"
+              className={errors.firstnam ? 'error' : ''}
+              placeholder="Enter your first name"
             />
-            {errors.fullName && <span className="error-text">{errors.fullName}</span>}
+            {errors.firstnam && <span className="error-text">{errors.firstnam}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="lastname">Last Name</label>
+            <input
+              type="text"
+              id="lastname"
+              name="lastname"
+              value={formData.lastname}
+              onChange={handleChange}
+              className={errors.lastname ? 'error' : ''}
+              placeholder="Enter your last name"
+            />
+            {errors.lastname && <span className="error-text">{errors.lastname}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              className={errors.username ? 'error' : ''}
+              placeholder="Choose a username"
+            />
+            {errors.username && <span className="error-text">{errors.username}</span>}
           </div>
 
           <div className="form-group">
@@ -113,20 +175,6 @@ const SignUp = ({ setUser }) => {
               placeholder="Enter your email"
             />
             {errors.email && <span className="error-text">{errors.email}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="userType">I am a</label>
-            <select
-              id="userType"
-              name="userType"
-              value={formData.userType}
-              onChange={handleChange}
-            >
-              <option value="resident">Cyberjaya Resident</option>
-              <option value="student">University Student</option>
-              <option value="environmentalist">Environmental Group Member</option>
-            </select>
           </div>
 
           <div className="form-group">
@@ -159,8 +207,12 @@ const SignUp = ({ setUser }) => {
 
           {errors.submit && <div className="error-text submit-error">{errors.submit}</div>}
 
-          <button type="submit" className="auth-button">
-            Create Account
+          <button 
+            type="submit" 
+            className="auth-button"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
 
