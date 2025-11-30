@@ -101,7 +101,7 @@ const Login = ({ setUser }) => {
         
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
-        navigate('/dashboard');
+        navigate('/');
         
       } catch (error) {
         console.error('Login error:', error);
