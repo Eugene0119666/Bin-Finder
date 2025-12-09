@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Marker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import './Home.css';
 
 // Temporary data
@@ -38,8 +40,10 @@ const createPin = (type) => {
 };
 
 function Home({ user }) {
-  const position = [2.9278, 101.6419];  // Coordinates for the Cyberjaya for the map
+  const mapCenter = [2.9278, 101.6419];  // Coordinates for the Cyberjaya for the map
   const navigate = useNavigate();
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // For category filter
   const categories = ['Recycling Bin', 'Recycling Centre', 'Donation Bin', 'Donation Centre'];
@@ -64,6 +68,46 @@ function Home({ user }) {
     window.location.reload();
   }
 
+  // Get user location
+  const [userLocation, setUserLocation] = useState(null);
+
+  const handleGetUserLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        // Set the user location pin
+        setUserLocation({ lat: latitude, lng: longitude });
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        alert("Unable to retrieve your location.");
+      }
+    );
+  }
+
+  function FlyToUserLocation({ userLocation }) {
+    const map = useMap();
+
+    useEffect(() => {
+      if (userLocation) {
+        map.flyTo([userLocation.lat, userLocation.lng], 14.5, {
+          duration: 2 
+        });
+      }
+    }, [userLocation, map]);
+
+    return null;
+  }
+
+  useEffect(() => {
+    handleGetUserLocation();
+  }, []);
+
   return (
     <div className="home-container">
       {/* Top Menu Bar */}
@@ -73,6 +117,31 @@ function Home({ user }) {
           {user ? (
             // Show user info and logout when logged in
             <div className="user-menu">
+              <div className="dropdown-wrapper">
+                <button
+                  className="dropdown-btn"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                >
+                  Menu <span>{dropdownOpen ? <FaChevronUp /> : <FaChevronDown />}</span>
+                </button>
+              </div>
+
+                {dropdownOpen && (
+                  <div className="dropdown-panel">
+                    <button className="dropdown-item">
+                      Profile
+                    </button>
+                    <button className="dropdown-item">
+                      Minigame
+                    </button>
+
+                    {/* Button to Admin Page, currently available for everyone including users */}
+                    <button className="dropdown-item" onClick={() => navigate('/admin')}>
+                      Admin Controls
+                    </button>
+                  </div>
+                )}
+              
               <span className="welcome-text">Welcome, {user.fullName}!</span>
               <span className="user-points">{user.points} pts</span>
               <button className="nav-login-btn" onClick={handleLogout}>
@@ -100,8 +169,9 @@ function Home({ user }) {
 
       {/* Main Content Area */}
       <div className="main-content">
+        {/* Map */}
         <MapContainer 
-          center={position} 
+          center={mapCenter}
           zoom={14.5} 
           scrollWheelZoom={true} 
           className="leaflet-container"
@@ -110,6 +180,24 @@ function Home({ user }) {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+
+          <FlyToUserLocation userLocation={userLocation} />
+
+          {/* User Location Pin */}
+          {userLocation && (
+            <CircleMarker 
+              center={[userLocation.lat, userLocation.lng]}
+              radius={9} 
+              pathOptions={{ 
+                color: 'white', 
+                fillColor: '#007bff',
+                fillOpacity: 1,
+                weight: 2
+              }}
+            >
+              <Popup>You are here</Popup>
+            </CircleMarker>
+          )}
           
           {/* Loop through all pin */}
           {filteredLocations.map((location) => (
@@ -118,15 +206,22 @@ function Home({ user }) {
               position={[location.lat, location.lng]}
               icon={createPin(location.type)} 
             >
-              <Popup>
+              <Popup minWidth={300} maxWidth={500}>
                 <div style={{ textAlign: 'center' }}>
                   <h3>{location.name}</h3>
                   <p style={{ margin: 0, color: 'gray' }}>{location.type}</p>
                   <hr style={{ margin: '5px 0' }}/>
                   <small>{location.address}</small>
+                  <hr style={{ margin: '5px 0' }}/>
+                  <button
+                    className="navigate-btn"
+                    onClick={() => handleNavigate(location.lat, location.lng)}
+                    style={{ marginRight: '5px' }}
+                  >
+                    Navigate
+                  </button>
                   {user && (
                     <>
-                      <hr style={{ margin: '5px 0' }}/>
                       <button className="report-btn">
                         Report Issue
                       </button>
@@ -188,11 +283,11 @@ function Home({ user }) {
           )}
 
           {/* Category Filtering (for all users) */}
-          <div className="dropdown-list">
+          <div className="category-list">
             <p><b>Category</b></p>
 
             {categories.map(category => (
-              <label key={category} className="dropdown-item">
+              <label key={category} className="category-item">
                 <input
                   type="checkbox"
                   value={category}
