@@ -462,9 +462,6 @@
 .user-pins-list {
   display: flex;
   flex-direction: column;
-.user-pins-list {
-  display: flex;
-  flex-direction: column;
   gap: 12px;
   max-height: 400px;
   overflow-y: auto;
